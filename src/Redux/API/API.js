@@ -1,7 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-const baseUrl = import.meta.env.VITE_BASE_URL;
+
+const baseUrl = "http://localhost:8080";//import.meta.env.VITE_BASE_URL;
 const token = localStorage.getItem("token");
+
 
 // SignUP
 export const userSignUP = createAsyncThunk(

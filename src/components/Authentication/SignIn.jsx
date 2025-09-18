@@ -149,6 +149,7 @@ const SignIn = () => {
                   <input
                     id="password"
                     name="password"
+                    placeholder="password"
                     type={showPassword ? "text" : "password"}
                     required
                     autoComplete="current-password"
@@ -193,8 +194,9 @@ const SignIn = () => {
             <p className="mt-3 text-sm text-center text-gray-900 dark:text-white">
               or continue with
             </p>
+            <br/>
             <button
-              className="mt-3 flex items-center w-40 m-auto justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 dark:text-white text-black border border-slate-400 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              className="w-full flex items-center w-40 m-auto justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 dark:text-white text-black border border-slate-400 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               onClick={googleLogin}
             >
               <img src={googleIMg} alt="Google" className="mr-2 size-4" />

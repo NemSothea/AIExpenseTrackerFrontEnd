@@ -152,6 +152,7 @@ const SignUp = () => {
                   <input
                     id="password"
                     name="password"
+                    placeholder="password"
                     type={showPassword ? "text" : "password"}
                     required
                     autoComplete="current-password"

@@ -8,10 +8,7 @@ const PrivacyPolicy = () => {
           Privacy Policy
         </h1>
         <p className="text-gray-600 mb-6">
-          At [Your Travel Website Name], we value your privacy and are committed
-          to protecting your personal information. This Privacy Policy outlines
-          how we collect, use, and safeguard your data when you use our
-          services.
+          At IA Expense Tracker, we value your privacy and are committed to protecting your personal information. This Privacy Policy outlines how we collect, use, and safeguard your data when you use our services.
         </p>
 
         <section className="mb-6">
@@ -20,12 +17,13 @@ const PrivacyPolicy = () => {
           </h2>
           <ul className="list-disc pl-6 text-gray-600">
             <li>
-              <strong>Personal Information:</strong> Name, email address, phone
-              number, and payment details when you make a booking.
+              <strong>Personal Information:</strong> Name, email address, and payment details when you register or subscribe.
             </li>
             <li>
-              <strong>Non-Personal Information:</strong> Browser type, device
-              information, and browsing patterns for analytics purposes.
+              <strong>Financial Data:</strong> Expense entries, categories, and transaction history you input into the platform.
+            </li>
+            <li>
+              <strong>Non-Personal Information:</strong> Browser type, device information, and usage patterns for analytics purposes.
             </li>
           </ul>
         </section>
@@ -35,11 +33,9 @@ const PrivacyPolicy = () => {
             2. How We Use Your Information
           </h2>
           <ul className="list-disc pl-6 text-gray-600">
-            <li>To process your bookings and payments.</li>
-            <li>
-              To send booking confirmations, updates, and promotional offers.
-            </li>
-            <li>To improve our website and customer experience.</li>
+            <li>To provide and improve our expense tracking services.</li>
+            <li>To send account updates, notifications, and relevant offers.</li>
+            <li>To analyze usage trends and enhance user experience.</li>
           </ul>
         </section>
 
@@ -48,15 +44,11 @@ const PrivacyPolicy = () => {
             3. Sharing Your Information
           </h2>
           <p className="text-gray-600">
-            We do not sell or rent your personal information to third parties.
-            However, we may share your information with:
+            We do not sell or rent your personal information. However, we may share your data with:
           </p>
           <ul className="list-disc pl-6 text-gray-600">
-            <li>
-              Trusted third-party partners to process payments or provide
-              services.
-            </li>
-            <li>Law enforcement or regulatory bodies when required by law.</li>
+            <li>Trusted third-party services for secure payment processing and infrastructure support.</li>
+            <li>Legal authorities when required to comply with applicable laws and regulations.</li>
           </ul>
         </section>
 
@@ -65,9 +57,7 @@ const PrivacyPolicy = () => {
             4. Data Security
           </h2>
           <p className="text-gray-600">
-            We implement appropriate technical and organizational measures to
-            safeguard your data. However, no online transmission or storage is
-            completely secure, and we cannot guarantee absolute security.
+            We implement industry-standard security measures to protect your data. While we strive to ensure security, no method of transmission or storage is 100% secure.
           </p>
         </section>
 
@@ -76,9 +66,7 @@ const PrivacyPolicy = () => {
             5. Cookies
           </h2>
           <p className="text-gray-600">
-            We use cookies to enhance your browsing experience. You can disable
-            cookies in your browser settings, but this may limit some features
-            of our website.
+            We use cookies to personalize your experience and analyze usage. You may disable cookies in your browser settings, though some features may be affected.
           </p>
         </section>
 
@@ -87,13 +75,12 @@ const PrivacyPolicy = () => {
             6. Your Rights
           </h2>
           <p className="text-gray-600">
-            You have the right to access, correct, or delete your personal
-            information. Contact us at{" "}
+            You have the right to access, update, or delete your personal information. Contact us at{" "}
             <a
-              href="mailto:support@yourtravelwebsite.com"
+              href="mailto:support@aiexpense.com"
               className="text-blue-500 underline"
             >
-              support@yourtravelwebsite.com
+              support@aiexpense.com
             </a>{" "}
             for assistance.
           </p>
@@ -104,19 +91,17 @@ const PrivacyPolicy = () => {
             7. Changes to This Policy
           </h2>
           <p className="text-gray-600">
-            We may update this Privacy Policy periodically. Changes will be
-            posted on this page, and we encourage you to review it regularly.
+            We may revise this Privacy Policy from time to time. Updates will be posted on this page, and we encourage you to review it periodically.
           </p>
         </section>
 
         <p className="text-gray-600">
-          If you have any questions or concerns about this Privacy Policy,
-          please contact us at{" "}
+          If you have any questions or concerns about this Privacy Policy, please contact us at{" "}
           <a
-            href="mailto:support@yourtravelwebsite.com"
+            href="mailto:support@aiexpense.com"
             className="text-blue-500 underline"
           >
-            support@yourtravelwebsite.com
+            support@aiexpense.com
           </a>
           .
         </p>
