@@ -8,7 +8,7 @@ const TermsOfService = () => {
           Terms of Service
         </h1>
         <p className="text-gray-600 mb-6">
-          Welcome to IA Expense Tracker! By accessing our website and using our services, you agree to comply with and be bound by the following terms and conditions.
+          Welcome to AI Expense Tracker! By accessing our website and using our services, you agree to comply with and be bound by the following terms and conditions.
         </p>
 
         <section className="mb-6">
@@ -47,7 +47,7 @@ const TermsOfService = () => {
             4. Limitation of Liability
           </h2>
           <p className="text-gray-600">
-            IA Expense Tracker is not liable for any financial loss, data breach, or damages resulting from the use of our services. Users are responsible for their own financial decisions.
+            AI Expense Tracker is not liable for any financial loss, data breach, or damages resulting from the use of our services. Users are responsible for their own financial decisions.
           </p>
         </section>
 

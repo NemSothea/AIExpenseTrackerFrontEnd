@@ -95,7 +95,7 @@ const SignIn = () => {
                 {/* title + subtitle */}
                 <div>
                   <h1 className="text-3xl font-extrabold leading-tight text-slate-900 dark:text-slate-100">
-                    ExpenseAI
+                    AI Expense Tracker
                   </h1>
                   <p className="text-base font-semibold text-slate-500 dark:text-slate-400 -mt-1">
                     Smart Financial Tracking

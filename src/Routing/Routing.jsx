@@ -9,11 +9,6 @@ import UserDashboard from "../components/Pages/UserPages/UserDashboard";
 
 
 
-
-
-
-
-
 import AuthSuccess from "../components/Authentication/AuthSuccess";
 import TermsOfService from "../components/Pages/terms";
 import PrivacyPolicy from "../components/Pages/Privacy";
