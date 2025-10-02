@@ -12,7 +12,6 @@ const SignIn = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -32,29 +31,33 @@ const SignIn = () => {
     };
 
     dispatch(userLogin(credentials)).then((result) => {
-      console.log(result);
+  // Thunk rejected? Show the server message.
+  if (result.type.endsWith("/rejected")) {
+    const msg = result?.payload?.message || "Try again!";
+    toast.error(msg);
+    setEmail("");
+    setPassword("");
+    return;
+  }
 
-      if (result?.payload === undefined) {
-        console.log(result?.payload?.error);
-        setEmail("");
-        setPassword("");
-        toast.info("try again!")
-      }
-      // else if(!result.ok){
-      //   toast.error('error occured')
-      //   setEmail("");
-      //   setPassword("");
-      // }
-      else {
-        console.log("login successfully");
-        localStorage.setItem("token", result.payload.data);
-        navigate(
-          decodedTokenRole === "ROLE_ADMIN"
-            ? "/admin/dashboard"
-            : "/user/dashboard"
-        );
-      }
-    });
+  // Success: extract token (string or {token})
+  const token = typeof result.payload === "string"
+    ? result.payload
+    : result.payload?.token;
+
+  if (!token) {
+    toast.error("No token returned from server");
+    return;
+  }
+
+  localStorage.setItem("token", token);
+
+  // Decode the *fresh* token we just saved
+  const { role } = jwtDecode(token) || {};
+  const next = role === "ROLE_ADMIN" ? "/admin/dashboard" : "/user/dashboard";
+  navigate(next);
+});
+
   };
 
   useEffect(() => {

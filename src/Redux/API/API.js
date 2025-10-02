@@ -23,18 +23,24 @@ export const userSignUP = createAsyncThunk(
 
 // SignIn
 
-export const userLogin = createAsyncThunk("userLogin", async (credentials) => {
-  try {
-    // Making the POST request and waiting for the response
-    const response = await axios.post(`${baseUrl}/auth/login`, credentials);
-
-    return response;
-  } catch (error) {
-    if (error.status === 403) {
-      return { error: "Invalid User!" };
+export const userLogin = createAsyncThunk(
+  "userLogin",
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const res = await axios.post(`${baseUrl}/auth/login`, credentials);
+      // If your backend returns { token: "..." }, this will be that object.
+      // If it returns the raw token string, this will be the string.
+      return res.data;
+    } catch (error) {
+      const status = error?.response?.status;
+      const message =
+        status === 403
+          ? "Invalid user!"
+          : error?.response?.data?.message || "Login failed";
+      return rejectWithValue({ status, message });
     }
   }
-});
+);
 
 // admin get all tours
 
@@ -133,51 +139,8 @@ export const deleteTour = createAsyncThunk("deleteTour", async (tourId) => {
   }
 });
 
-// get admin all lodging
 
-export const adminLodging = createAsyncThunk("adminLodging", async () => {
-  try {
-    const token = localStorage.getItem('token');
-    if(!token){
-      return;
-    }
-    const response = axios.get(`${baseUrl}/admin/lodgings`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response;
-  } catch (error) {
-    return error;
-  }
-});
 
-// update tour
-
-export const updateTour = createAsyncThunk(
-  "updateTour",
-  async ({ tourId, formData }, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.put(
-        `${baseUrl}/admin/tours/${tourId}`,
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data", // Important: use multipart/form-data for file uploads
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return response.data;
-    } catch (error) {
-      console.error("Update tour error:", error);
-      return rejectWithValue(
-        error.response ? error.response.data : error.message
-      );
-    }
-  }
-);
 
 // update location
 
@@ -202,88 +165,7 @@ export const editLocation = createAsyncThunk(
   }
 );
 
-// update transport
 
-export const editTransport = createAsyncThunk(
-  "editTransport",
-  async ({ transportId, updatedTransport }) => {
-    const token = localStorage.getItem("token");
-    if(!token){
-      return;
-    }
-    const response = await axios.put(
-      `${baseUrl}/admin/transports/${transportId}`,
-      updatedTransport,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response;
-  }
-);
-
-// update lodging
-
-export const editLodging = createAsyncThunk(
-  "editLodging",
-  async ({ lodgingId, updatedLodging }) => {
-    const token = localStorage.getItem("token");
-    if(!token){
-      return;
-    }
-    const response = await axios.put(
-      `${baseUrl}/admin/lodgings/${lodgingId}`,
-      updatedLodging,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response;
-  }
-);
-
-// admin ticket Summary
-
-export const allTickets = createAsyncThunk("allTickets", async () => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      return;
-    }
-    const response = axios.get(`${baseUrl}/admin/tourTicketSummary`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response;
-  } catch (error) {
-    return error;
-  }
-});
-
-// admin tour book details
-export const bookDetails = createAsyncThunk("bookDetails", async (tourId) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      return;
-    }
-    const response = await axios.get(`${baseUrl}/admin/tourDetails/${tourId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response;
-  } catch (error) {
-    return error;
-  }
-});
 
 // user section-----
 
@@ -327,34 +209,6 @@ export const UserTourDetail = createAsyncThunk(
   }
 );
 
-// user book tour
-
-export const userBook = createAsyncThunk(
-  "userBook",
-
-  async ({ tourId, numberOfTickets }) => {
-    const token = localStorage.getItem("token");
-      if (!token) {
-        return;
-      }
-    try {
-      const request = await axios.post(
-        `${baseUrl}/customer/create-payment-intent/${tourId}?numberOfTickets=${numberOfTickets}`,
-        // The second argument should be the request body (if any)
-        {},  // Empty object if no body is needed
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      return request.data;  // Return .data instead of entire request
-    } catch (error) {
-      console.error('Booking error:', error.response ? error.response.data : error.message);
-      throw error;  // Rethrow to allow Redux to handle the error
-    }
-  }
-);
 
 // user confirm booking
 export const confirmBooking = createAsyncThunk(
