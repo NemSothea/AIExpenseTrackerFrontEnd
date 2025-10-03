@@ -1,8 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 const baseUrl = "http://localhost:8080";//import.meta.env.VITE_BASE_URL;
 const token = localStorage.getItem("token");
+let userId = null;
 
 
 // SignUP
@@ -42,192 +44,104 @@ export const userLogin = createAsyncThunk(
   }
 );
 
-// admin get all tours
-
-export const adminTours = createAsyncThunk("adminTours", async () => {
-  try {
+// Dashboard: GET /api/dashboard with query params + Authorization header
+export const fetchDashboard = createAsyncThunk(
+  "dashboard/fetch",
+  async ({ userId, start, end, topLimit = 5, recentLimit = 10 }, { rejectWithValue }) => {
     const token = localStorage.getItem("token");
+    const finalUserId = userId ?? getUserIdFromToken();
+
+    // ENHANCED DEBUG LOGS
+    console.log("=== DEBUG fetchDashboard ===");
+    console.log("Token from localStorage:", token);
+    console.log("Token exists:", !!token);
+    console.log("UserID from props:", userId);
+    console.log("UserID from token:", getUserIdFromToken());
+    console.log("Final UserID being used:", finalUserId);
+    console.log("Params:", { start, end, topLimit, recentLimit });
+
     if (!token) {
-      return;
+      console.error("❌ No token found");
+      return rejectWithValue({ status: 401, message: "Missing token" });
     }
-    const response = await axios.get(`${baseUrl}/admin/tours`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response;
-  } catch (error) {
-    return error;
+    if (!finalUserId) {
+      console.error("❌ No user ID found");
+      return rejectWithValue({
+        status: 400,
+        message: "Missing userId (token has no userId or sub).",
+      });
+    }
+
+    try {
+      console.log("🔄 Making API request...");
+      const res = await axios.get(`${baseUrl}/api/dashboard`, {
+        params: { userId: finalUserId, start, end, topLimit, recentLimit },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("✅ API response:", res.data);
+      return res.data;
+    } catch (error) {
+      console.error("❌ API error details:");
+      console.error("Status:", error?.response?.status);
+      console.error("Data:", error?.response?.data);
+      console.error("Headers:", error?.response?.headers);
+      console.error("Full error:", error);
+      
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || "Failed to load dashboard";
+      return rejectWithValue({ status, message });
+    }
   }
-});
+);
 
-//get admin tour by Id
-
-export const fetchTourDetails = createAsyncThunk(
-  "fetchTourDetails",
-  async (tourId, { rejectWithValue }) => {
+// --- CREATE EXPENSE ---
+export const createExpense = createAsyncThunk(
+  "expenses/create",
+  async ({ categoryId, amount, description, expenseDate }, { rejectWithValue }) => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        return;
-      }
-      const response = await axios.get(`${baseUrl}/admin/tours/${tourId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
-// get admin all transport
-
-export const adminTransport = createAsyncThunk("adminTransport", async () => {
-  try {
-    const token = localStorage.getItem('token');
-    if(!token){
-      return;
-    }
-    const response = axios.get(`${baseUrl}/admin/transports`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response;
-  } catch (error) {
-    return error;
-  }
-});
-
-// get admin all location
-
-export const adminLocation = createAsyncThunk("adminLocation", async () => {
-  try {
-    const token = localStorage.getItem('token');
-    if(!token){
-      return;
-    }
-    const response = axios.get(`${baseUrl}/admin/locations`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response;
-  } catch (error) {
-    return error;
-  }
-});
-// get admin tour delete
-
-export const deleteTour = createAsyncThunk("deleteTour", async (tourId) => {
-  try {
-    const token = localStorage.getItem('token');
-    if(!token){
-      return;
-    }
-    const response = axios.delete(`${baseUrl}/admin/tours/${tourId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response;
-  } catch (error) {
-    return error;
-  }
-});
-
-
-
-
-// update location
-
-export const editLocation = createAsyncThunk(
-  "editLocation",
-  async ({ locationId, updatedLocation }) => {
-    const token = localStorage.getItem("token");
-    if(!token){
-      return;
-    }
-    const response = await axios.put(
-      `${baseUrl}/admin/locations/${locationId}`,
-      updatedLocation,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    return response;
-  }
-);
-
-
-
-// user section-----
-
-// user get all tours
-
-export const userTours = createAsyncThunk("userTours", async () => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      return;
-    }
-    const response = await axios.get(`${baseUrl}/customer/tours`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    return response;
-  } catch (error) {
-    return error;
-  }
-});
-
-// get user tour by ID
-export const UserTourDetail = createAsyncThunk(
-  "UserTourDetails",
-  async (tourId, { rejectWithValue }) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        return;
-      }
-      const response = await axios.get(`${baseUrl}/customer/tours/${tourId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response.data);
-    }
-  }
-);
-
-
-// user confirm booking
-export const confirmBooking = createAsyncThunk(
-  "confirmBooking",
-  async ({ bookingId,paymentIntentId}, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(
-        `${baseUrl}/customer/confirm-payment/${bookingId}?paymentIntentId=${paymentIntentId}`,
-    {},
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const userId = getUserIdFromToken();
+      const res = await axios.post(
+        `${baseUrl}/api/create-expenses`,
+        { userId, categoryId, amount, description, expenseDate },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      return response;
+      return res.data; // backend may return the created object
     } catch (error) {
-      return rejectWithValue(error);
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || "Failed to create expense";
+      return rejectWithValue({ status, message });
     }
   }
 );
+
+// --- CATEGORIES (active) ---
+export const fetchCategories = createAsyncThunk(
+  "categories/active",
+  async (_, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${baseUrl}/api/categories/active`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data; // expect array like [{id, name, ...}]
+    } catch (error) {
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || "Failed to load categories";
+      return rejectWithValue({ status, message });
+    }
+  }
+);
+
+function getUserIdFromToken() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  try {
+    const d = jwtDecode(token);
+    // prefer numeric userId if backend provides it; else sub (email/username)
+    return d.userId ?? d.sub ?? null;
+  } catch {
+    console.error("jwtDecode failed:", e);
+    return null;
+  }
+}

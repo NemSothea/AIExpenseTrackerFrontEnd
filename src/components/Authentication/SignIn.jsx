@@ -5,7 +5,7 @@ import googleIMg from "../../assets/Images/Google.svg.webp";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogin } from "../../Redux/API/API";
-import { jwtDecode } from "jwt-decode";
+// import { jwtDecode } from "jwt-decode";
 import { toast } from "sonner";
 
 const SignIn = () => {
@@ -16,7 +16,7 @@ const SignIn = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const decodedTokenRole = token ? jwtDecode(token).role : null;
+  // const decodedTokenRole = token ? jwtDecode(token).role : null;
   const { loading } = useSelector((state) => state.user);
 
   const toggle = () => {
@@ -31,44 +31,51 @@ const SignIn = () => {
     };
 
     dispatch(userLogin(credentials)).then((result) => {
-  // Thunk rejected? Show the server message.
-  if (result.type.endsWith("/rejected")) {
-    const msg = result?.payload?.message || "Try again!";
-    toast.error(msg);
-    setEmail("");
-    setPassword("");
-    return;
-  }
+      // Thunk rejected? Show the server message.
+      if (result.type.endsWith("/rejected")) {
+        const msg = result?.payload?.message || "Try again!";
+        toast.error(msg);
+        setEmail("");
+        setPassword("");
+        return;
+      }
 
-  // Success: extract token (string or {token})
-  const token = typeof result.payload === "string"
-    ? result.payload
-    : result.payload?.token;
+      // Success: extract token (string or {token})
+      const token = typeof result.payload === "string"
+        ? result.payload
+        : result.payload?.token;
 
-  if (!token) {
-    toast.error("No token returned from server");
-    return;
-  }
+      if (!token) {
+        toast.error("No token returned from server");
+        return;
+      }
 
-  localStorage.setItem("token", token);
+      localStorage.setItem("token", token);
 
-  // Decode the *fresh* token we just saved
-  const { role } = jwtDecode(token) || {};
-  const next = role === "ROLE_ADMIN" ? "/admin/dashboard" : "/user/dashboard";
-  navigate(next);
-});
+      // Decode the *fresh* token we just saved
+      // const { role } = jwtDecode(token) || {};
+      // const next = role === "ROLE_ADMIN" ? "/admin/dashboard" : "/user/dashboard";
+      // navigate(next);
+      navigate("/user/dashboard");
+    });
 
   };
+// We will update the admin path later
+  // useEffect(() => {
+  //   if (token) {
+  //     navigate(
+  //       decodedTokenRole === "ROLE_ADMIN"
+  //         ? "/admin/dashboard"
+  //         : "/user/dashboard"
+  //     );
+  //   }
+  // }, [token, decodedTokenRole, navigate]);
 
   useEffect(() => {
-    if (token) {
-      navigate(
-        decodedTokenRole === "ROLE_ADMIN"
-          ? "/admin/dashboard"
-          : "/user/dashboard"
-      );
-    }
-  }, [token, decodedTokenRole, navigate]);
+  if (token) {
+    navigate("/user/dashboard");
+  }
+}, [token, navigate]);
 
   if (loading) {
     return <div className="flex justify-center font-bold">loading...</div>;
@@ -197,7 +204,7 @@ const SignIn = () => {
             <p className="mt-3 text-sm text-center text-gray-900 dark:text-white">
               or continue with
             </p>
-            <br/>
+            <br />
             <button
               className="w-full flex items-center w-40 m-auto justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 dark:text-white text-black border border-slate-400 shadow-sm hover:bg-slate-100 dark:hover:bg-slate-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               onClick={googleLogin}

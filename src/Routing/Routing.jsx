@@ -7,12 +7,10 @@ import ProtectedRoute from "./ProtectedRoute";
 
 import UserDashboard from "../components/Pages/UserPages/UserDashboard";
 
-
-
 import AuthSuccess from "../components/Authentication/AuthSuccess";
 import TermsOfService from "../components/Pages/terms";
 import PrivacyPolicy from "../components/Pages/Privacy";
-import Success from "../components/Pages/Success";
+
 
 const Routing = () => {
   return (
@@ -25,15 +23,14 @@ const Routing = () => {
 
       <Route path="*" element={<NotFound />} />
     
-    
-
       <Route
         path="/user/dashboard"
-        element={<ProtectedRoute element={UserDashboard} loginPath="/" />}
+        element={<ProtectedRoute element={UserDashboard} 
+        loginPath="/"
+        roles={["ROLE_CUSTOMER"]}
+        />}
       ></Route>
 
-
-      <Route path="/success" element ={<ProtectedRoute element={Success} loginPath="/"/>}></Route>
     </Routes>
   );
 };

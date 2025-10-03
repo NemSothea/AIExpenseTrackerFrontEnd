@@ -1,83 +1,109 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Calendar, DollarSign } from "lucide-react";
 
-export default function ExpenseForm({ onSubmit, onCancel }) {
+// Form for creating an expense
+export default function ExpenseForm({
+  categories = [],
+  defaultCategoryId,
+  onSubmit,
+  onCancel,
+}) {
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
-  const [merchant, setMerchant] = useState("");
-  const [category, setCategory] = useState("Food & Dining");
+  const [categoryId, setCategoryId] = useState("");
+  const [categoryName, setCategoryName] = useState("");
   const [date, setDate] = useState(
     new Date().toISOString().split("T")[0] // default today
   );
 
-  const categories = [
-    "Food & Dining",
-    "Transportation",
-    "Shopping",
-    "Entertainment",
-    "Bills & Utilities",
-    "Health & Fitness",
-    "Other",
-  ];
-
-  const quickAmounts = [5, 10, 20, 50, 100];
+  // When categories load, preselect defaultCategoryId (e.g., 26 for Utilities) or first item
+  useEffect(() => {
+    if (!categories.length) return;
+    if (!categoryId) {
+      const def =
+        categories.find((c) => String(c.id) === String(defaultCategoryId)) ||
+        categories[0];
+      if (def) {
+        setCategoryId(def.id);
+        setCategoryName(def.name || "");
+      }
+    } else {
+      const found = categories.find((c) => String(c.id) === String(categoryId));
+      if (found && found.name !== categoryName) {
+        setCategoryName(found.name || "");
+      }
+    }
+  }, [categories, defaultCategoryId, categoryId, categoryName]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!amount || !description) return;
+    if (!categoryId) return;
 
-    const expense = { amount, description, merchant, category, date };
+    const expense = {
+      amount,
+      description,
+      categoryId,
+      category: categoryName, // send name as well if caller wants to display immediately
+      date,
+    };
     onSubmit?.(expense);
 
     // reset
     setAmount("");
     setDescription("");
-    setCategory("Food & Dining");
     setDate(new Date().toISOString().split("T")[0]);
   };
 
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-md mx-auto p-6 bg-white shadow rounded-lg"
+      className="space-y-4 p-4 border rounded-md bg-white"
     >
-      <h2 className="text-lg font-semibold flex items-center gap-2 mb-4">
-        <DollarSign className="w-5 h-5" />
-        Add New Expense
-      </h2>
-
       {/* Amount */}
-      <label className="block text-sm font-medium">Amount *</label>
+      <label className="block text-sm font-medium flex items-center gap-2">
+        <DollarSign className="w-4 h-4" /> Amount
+      </label>
       <input
         type="number"
+        min="0"
+        step="0.01"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
-        placeholder="0"
-        className="w-full p-2 border rounded-md mb-4"
+        className="w-full border rounded-md p-2"
         required
       />
 
       {/* Description */}
-      <label className="block text-sm font-medium">Description *</label>
+      <label className="block text-sm font-medium">Description</label>
       <input
         type="text"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        placeholder="What did you spend on?"
-        className="w-full p-2 border rounded-md mb-4"
+        className="w-full border rounded-md p-2"
+        placeholder="e.g., Health check Oct"
         required
       />
 
       {/* Category */}
       <label className="block text-sm font-medium">Category</label>
       <select
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-        className="w-full p-2 border rounded-md mb-4"
+        value={categoryId}
+        onChange={(e) => {
+          const id = Number(e.target.value);
+          setCategoryId(id);
+          const found = categories.find((c) => c.id === id);
+          setCategoryName(found?.name || "");
+        }}
+        className="w-full border rounded-md p-2"
+        required
       >
-        {categories.map((cat) => (
-          <option key={cat} value={cat}>
-            {cat}
+        <option value="" disabled>
+          Select a category
+        </option>
+        {categories.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.name}
           </option>
         ))}
       </select>
@@ -90,41 +116,25 @@ export default function ExpenseForm({ onSubmit, onCancel }) {
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
-        className="w-full p-2 border rounded-md mb-4"
+        className="w-full border rounded-md p-2"
+        required
       />
 
       {/* Buttons */}
-      <div className="flex gap-2">
-        <button
-          type="submit"
-          className="flex-1 bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700"
-        >
-          Add Expense
-        </button>
+      <div className="flex justify-end gap-3">
         <button
           type="button"
-          onClick={onCancel}
           className="px-4 py-2 border rounded-md"
+          onClick={onCancel}
         >
           Cancel
         </button>
-      </div>
-
-      {/* Quick Amounts */}
-      <div className="mt-4">
-        <p className="text-sm text-gray-600 mb-2">Quick amounts:</p>
-        <div className="flex gap-2 flex-wrap">
-          {quickAmounts.map((amt) => (
-            <button
-              key={amt}
-              type="button"
-              onClick={() => setAmount(amt)}
-              className="px-3 py-1 border rounded-md hover:bg-gray-100"
-            >
-              ${amt}
-            </button>
-          ))}
-        </div>
+        <button
+          type="submit"
+          className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+        >
+          Add Expense
+        </button>
       </div>
     </form>
   );
