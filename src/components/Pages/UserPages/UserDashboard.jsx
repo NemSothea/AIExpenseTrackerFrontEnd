@@ -12,7 +12,6 @@ import { toast } from "sonner";
 const currency = (n) =>
   new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" })
     .format(Number.isFinite(n) ? n : 0);
-  const userId = 1;
 
 export default function UserDashboard() {
   const dispatch = useDispatch();
@@ -21,7 +20,7 @@ export default function UserDashboard() {
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [currentView, setCurrentView] = useState("dashboard"); // "dashboard" | "history"
   const [saving, setSaving] = useState(false);
-  // const [userId, setUserId] = useState(null);
+  const [userId, setUserId] = useState(null);
 
   // Data state
   const [expenses, setExpenses] = useState([]);
@@ -29,18 +28,23 @@ export default function UserDashboard() {
   const [serverTop, setServerTop] = useState(null);
   const [categories, setCategories] = useState([]);
 
+  const now = new Date();
+  const end = now.toISOString().split("T")[0]; // e.g. "2025-10-09"
+  const startDate = new Date();
+  startDate.setMonth(startDate.getMonth() - 1); // go back 1 month
+  const start = startDate.toISOString().split("T")[0]; // e.g. "2025-09-09"
 
-  // useEffect(() => {
-  //   const t = localStorage.getItem("token");
-  //   if (!t) return;
-  //   try {
-  //     const d = jwtDecode(t);
-  //     setUserId(d.userId ?? d.sub ?? null);
-  //   } catch (e) {
-  //     console.error("Invalid token:", e);
-  //     setUserId(null);
-  //   }
-  // }, []);
+
+ useEffect(() => {
+  const userData = localStorage.getItem("user");
+  if (userData) {
+    try {
+      const parsed = JSON.parse(userData);
+      setUserId(parsed.id);
+    } catch (e) {
+      console.error("Failed to parse user data:", e);
+    }
+  }}, []);
 
   // Load categories once
   useEffect(() => {
@@ -60,8 +64,8 @@ export default function UserDashboard() {
     dispatch(
       fetchDashboard({
         userId,                           // pass it explicitly (works even if thunk can decode)
-        start: "2025-09-01",
-        end: "2025-10-31",
+        start:start,
+        end: end,
         topLimit: 5,
         recentLimit: 10,
       })
@@ -81,7 +85,6 @@ export default function UserDashboard() {
         id: e.id,
         amount: Number(e.amount || 0),
         description: e.description,
-        merchant: "",
         category: e.category,
         date: e.expenseDate,
         categoryName: e.category,

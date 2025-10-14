@@ -5,7 +5,7 @@ import googleIMg from "../../assets/Images/Google.svg.webp";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { userLogin } from "../../Redux/API/API";
-// import { jwtDecode } from "jwt-decode";
+
 import { toast } from "sonner";
 
 const SignIn = () => {
@@ -16,7 +16,7 @@ const SignIn = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  // const decodedTokenRole = token ? jwtDecode(token).role : null;
+
   const { loading } = useSelector((state) => state.user);
 
   const toggle = () => {
@@ -51,16 +51,21 @@ const SignIn = () => {
       }
 
       localStorage.setItem("token", token);
+      // ✅ Save user info for later
+      // ✅ Save user info for later dashboard requests
+      if (result.payload?.user) {
+        try {
+          localStorage.setItem("user", JSON.stringify(result.payload.user));
+        } catch (_) {
+          // fall through if storage fails
+        }
+      }
 
-      // Decode the *fresh* token we just saved
-      // const { role } = jwtDecode(token) || {};
-      // const next = role === "ROLE_ADMIN" ? "/admin/dashboard" : "/user/dashboard";
-      // navigate(next);
       navigate("/user/dashboard");
     });
 
   };
-// We will update the admin path later
+  // We will update the admin path later
   // useEffect(() => {
   //   if (token) {
   //     navigate(
@@ -72,10 +77,10 @@ const SignIn = () => {
   // }, [token, decodedTokenRole, navigate]);
 
   useEffect(() => {
-  if (token) {
-    navigate("/user/dashboard");
-  }
-}, [token, navigate]);
+    if (token) {
+      navigate("/user/dashboard");
+    }
+  }, [token, navigate]);
 
   if (loading) {
     return <div className="flex justify-center font-bold">loading...</div>;
