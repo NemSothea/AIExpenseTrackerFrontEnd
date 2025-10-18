@@ -114,6 +114,41 @@ export const createExpense = createAsyncThunk(
     }
   }
 );
+// --- UPDATE EXPENSE ---
+export const updateExpense = createAsyncThunk(
+  "expenses/update",
+  async ({ expenseId, userId, categoryId, amount, description, expenseDate }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      console.log("🔍 Updating expense with data:", { expenseId, userId, categoryId, amount, description, expenseDate });
+      
+      const res = await axios.patch(
+        `${baseUrl}/api/create-expenses/${expenseId}`,
+        { 
+          userId, 
+          categoryId, 
+          amount: Number(amount), 
+          description, 
+          expenseDate,
+          enabled: true 
+        },
+        { 
+          headers: { 
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          } 
+        }
+      );
+      console.log("✅ Expense updated successfully:", res.data);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Update expense error:", error);
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || "Failed to update expense";
+      return rejectWithValue({ status, message });
+    }
+  }
+);
 
 // --- CATEGORIES (active) ---
 export const fetchCategories = createAsyncThunk(
@@ -134,14 +169,31 @@ export const fetchCategories = createAsyncThunk(
 );
 
 function getUserIdFromToken() {
+  // First try to get from stored user data
+  const userData = localStorage.getItem("user");
+  if (userData) {
+    try {
+      const user = JSON.parse(userData);
+      if (user.id) {
+        return user.id; // This returns the numeric ID (1)
+      }
+    } catch (e) {
+      console.error("Failed to parse user data:", e);
+    }
+  }
+  
+  // Fallback to token decoding
   const token = localStorage.getItem("token");
   if (!token) return null;
+  
   try {
-    const d = jwtDecode(token);
-    // prefer numeric userId if backend provides it; else sub (email/username)
-    return d.userId ?? d.sub ?? null;
-  } catch {
-    console.error("jwtDecode failed:", e);
+    const decoded = jwtDecode(token);
+    console.log("🔍 Decoded token fields:", Object.keys(decoded));
+    
+    // The token has sub="sothea@example.com" but no userId
+    return decoded.userId || decoded.id || decoded.sub;
+  } catch (error) {
+    console.error("❌ JWT decode failed:", error);
     return null;
   }
 }

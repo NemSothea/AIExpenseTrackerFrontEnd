@@ -206,7 +206,7 @@ const SignIn = () => {
               </Link>
             </p>
 
-            <p className="mt-3 text-sm text-center text-gray-900 dark:text-white">
+            {/* <p className="mt-3 text-sm text-center text-gray-900 dark:text-white">
               or continue with
             </p>
             <br />
@@ -216,7 +216,7 @@ const SignIn = () => {
             >
               <img src={googleIMg} alt="Google" className="mr-2 size-4" />
               Google
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="absolute top-5 right-5 md:right-12">

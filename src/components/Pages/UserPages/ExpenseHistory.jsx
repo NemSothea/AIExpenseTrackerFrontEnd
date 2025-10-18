@@ -1,5 +1,5 @@
-import React, { useEffect,useMemo, useState } from "react";
-import { Search, Filter } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Search, Filter, Edit } from "lucide-react";
 
 const currency = (n) =>
     new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(n || 0);
@@ -38,22 +38,24 @@ function inRange(dateStr, period) {
     return true;
 }
 
-export default function ExpenseHistory({ expenses }) {
-    const categories = [
-        "All",
-        "Transportation",
-        "Food & Dining",
-        "Shopping",
-        "Entertainment",
-        "Bills & Utilities",
-        "Health & Fitness",
-        "Other",
-    ];
-
+export default function ExpenseHistory({ expenses, categories = [], onEditExpense }) {
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState("All");
     const [period, setPeriod] = useState("All Time");
     const [sortBy, setSortBy] = useState("Date (Newest)");
+
+    // Transform backend categories to include "All" option
+    const categoryOptions = useMemo(() => {
+        console.log("🔍 Categories from props:", categories);
+        
+        if (!categories || categories.length === 0) {
+            return ["All", "Transportation", "Food & Dining", "Shopping", "Entertainment", "Bills & Utilities", "Health & Fitness", "Other"];
+        }
+        
+        // Transform backend categories to just names
+        const categoryNames = categories.map(cat => cat.name);
+        return ["All", ...categoryNames];
+    }, [categories]);
 
     const filtered = useMemo(() => {
         const q = query.trim().toLowerCase();
@@ -91,6 +93,15 @@ export default function ExpenseHistory({ expenses }) {
 
     const total = filtered.reduce((sum, e) => sum + Number(e.amount || 0), 0);
 
+    const handleEditClick = (expense) => {
+        console.log("📝 Editing expense:", expense);
+        if (onEditExpense) {
+            onEditExpense(expense);
+        } else {
+            console.error("❌ onEditExpense prop is not provided");
+        }
+    };
+
     return (
         <div className="p-6 bg-white rounded-lg shadow-sm">
             <h2 className="text-2xl font-bold mb-2">Expense History</h2>
@@ -102,6 +113,7 @@ export default function ExpenseHistory({ expenses }) {
                 <div className="mb-3 flex items-center gap-2 text-gray-700 font-medium">
                     <Filter className="w-4 h-4" />
                     <span>Filters</span>
+                    {categories.length === 0 && <span className="text-sm text-yellow-500">Loading categories...</span>}
                 </div>
 
                 {/* Controls row */}
@@ -124,8 +136,10 @@ export default function ExpenseHistory({ expenses }) {
                         onChange={(e) => setCategory(e.target.value)}
                         className="border rounded-md p-2 text-sm"
                     >
-                        {categories.map((c) => (
-                            <option key={c}>{c}</option>
+                        {categoryOptions.map((c) => (
+                            <option key={c} value={c}>
+                                {c}
+                            </option>
                         ))}
                     </select>
 
@@ -136,7 +150,7 @@ export default function ExpenseHistory({ expenses }) {
                         className="border rounded-md p-2 text-sm"
                     >
                         {["All Time", "Today", "This Week", "This Month", "Last 30 Days", "This Year"].map((p) => (
-                            <option key={p}>{p}</option>
+                            <option key={p} value={p}>{p}</option>
                         ))}
                     </select>
 
@@ -147,7 +161,7 @@ export default function ExpenseHistory({ expenses }) {
                         className="border rounded-md p-2 text-sm"
                     >
                         {["Date (Newest)", "Date (Oldest)", "Amount (High-Low)", "Amount (Low-High)"].map((s) => (
-                            <option key={s}>{s}</option>
+                            <option key={s} value={s}>{s}</option>
                         ))}
                     </select>
 
@@ -155,8 +169,6 @@ export default function ExpenseHistory({ expenses }) {
                     <div className="ml-auto font-medium">Total: {currency(total)}</div>
                 </div>
             </div>
-
-
 
             {/* Transactions */}
             <div>
@@ -169,15 +181,22 @@ export default function ExpenseHistory({ expenses }) {
                 ) : (
                     <ul className="divide-y">
                         {filtered.map((e) => (
-                            <li key={e.id} className="p-3 flex justify-between items-center">
-                                <div>
+                            <li 
+                                key={e.id} 
+                                className="p-3 flex justify-between items-center hover:bg-gray-50 cursor-pointer group"
+                                onClick={() => handleEditClick(e)}
+                            >
+                                <div className="flex-1">
                                     <div className="font-medium">{e.description}</div>
                                     <div className="text-sm text-gray-600">
-                                        {e.category} • {e.merchant || "Unknown"}
+                                        {e.category}
                                     </div>
                                     <div className="text-xs text-gray-400">{fmtDate(e.date)}</div>
                                 </div>
-                                <div className="font-semibold text-blue-600">{currency(e.amount)}</div>
+                                <div className="flex items-center gap-3">
+                                    <div className="font-semibold text-blue-600">{currency(e.amount)}</div>
+                                    <Edit className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
                             </li>
                         ))}
                     </ul>
