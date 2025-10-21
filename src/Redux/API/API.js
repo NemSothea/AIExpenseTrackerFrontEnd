@@ -197,3 +197,40 @@ function getUserIdFromToken() {
     return null;
   }
 }
+export const fetchExpensesPagination = createAsyncThunk(
+  "expenses/pagination",
+  async ({ page = 0, size = 10, sort = "expenseDate,desc", userId }, { rejectWithValue }) => {
+    try {
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        return rejectWithValue({ status: 401, message: "Missing token" });
+      }
+      if (!userId) {
+        return rejectWithValue({ status: 400, message: "Missing userId" });
+      }
+
+      const params = {
+        userId,
+        page,
+        size,
+        sort
+      };
+
+      console.log("🔄 Making pagination request with params:", params);
+
+      const res = await axios.get(`${baseUrl}/api/dashboard/history-pagination`, {
+        params,
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      
+      console.log("✅ Pagination response received:", res.data);
+      return res.data;
+    } catch (error) {
+      console.error("❌ Pagination request failed:", error);
+      const status = error?.response?.status;
+      const message = error?.response?.data?.message || "Failed to load expenses";
+      return rejectWithValue({ status, message });
+    }
+  }
+);

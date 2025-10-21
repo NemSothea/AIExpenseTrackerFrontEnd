@@ -213,13 +213,13 @@ export default function ExpenseForm({
       </select>
 
       {/* Debug info for editing */}
-      {isEditing && (
+      {/* {isEditing && (
         <div className="text-sm text-gray-500 bg-yellow-50 p-2 rounded">
           <div>Original Expense Category: "{editingExpense.category}"</div>
           <div>Mapped to Category ID: {categoryId}</div>
           <div>Current Selection: {categoryName}</div>
         </div>
-      )}
+      )} */}
 
       {/* Date */}
       <label className="block text-sm font-medium flex items-center gap-2">

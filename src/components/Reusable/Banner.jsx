@@ -165,7 +165,7 @@ userRole === "ROLE_ADMIN"
       </nav>
     </header>
       <div className="container mx-auto px-6 py-20 text-center overflow-x-hidden max-w-full">
-        <h2 className="text-4xl md:text-5xl font-extrabold mb-3">Welcome to ExpenseAI</h2>
+        <h2 className="text-4xl md:text-5xl font-extrabold mb-3">Welcome to AI Expense</h2>
         <p className="text-lg md:text-xl max-w-2xl mx-auto opacity-90" onClick={() => navigate("/")}>
           Track your spending and discover insights — no distractions.
         </p>

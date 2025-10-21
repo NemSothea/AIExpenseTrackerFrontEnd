@@ -15,6 +15,7 @@ import {
   createExpense,
   updateExpense,
   fetchCategories,
+  fetchExpensesPagination, // ADD THIS IMPORT
 } from "../../../Redux/API/API";
 
 import { Banner, Footer } from "../../Reusable/Banner";
@@ -44,6 +45,10 @@ export default function UserDashboard() {
   const [serverTotals, setServerTotals] = useState(null);
   const [serverTop, setServerTop] = useState(null);
   const [categories, setCategories] = useState([]);
+
+  // ADD PAGINATION STATE
+  const [paginationData, setPaginationData] = useState(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const now = new Date();
   const end = now.toISOString().split("T")[0];
@@ -100,15 +105,81 @@ export default function UserDashboard() {
         id: e.id,
         amount: Number(e.amount || 0),
         description: e.description,
-        category: e.category, // This is the category name from backend
-        categoryId: e.categoryId, // This might be undefined
+        category: e.category,
+        categoryId: e.categoryId,
         date: e.expenseDate,
-        categoryName: e.category, // Use the name as categoryName too
+        categoryName: e.category,
         expense_date: e.expenseDate,
       }));
       setExpenses(normalized);
     });
   }, [dispatch, userId]);
+  useEffect(() => {
+    if (currentView === "history" && !paginationData) {
+      console.log("🔄 Switching to history tab, loading initial data...");
+      handlePageChange({
+        page: 0,
+        size: 50, // Load more items for client-side filtering
+        sort: "expenseDate,desc",
+      });
+    }
+  }, [currentView]);
+  const handlePageChange = async (filters) => {
+    if (!userId) {
+      toast.error("Missing user id");
+      return;
+    }
+
+    console.log("🔍 Page change filters:", filters);
+    setHistoryLoading(true);
+
+    try {
+      const requestParams = {
+        page: filters.page,
+        size: filters.size,
+        sort: filters.sort,
+        userId: userId,
+      };
+
+      console.log("🔄 Sending request with params:", requestParams);
+
+      const result = await dispatch(fetchExpensesPagination(requestParams));
+
+      if (result.type.endsWith("/fulfilled")) {
+        const data = result.payload || {};
+        console.log("✅ Pagination response:", data);
+
+        const normalized = (data.content || []).map((e) => ({
+          id: e.id,
+          amount: Number(e.amount || 0),
+          description: e.description,
+          category: e.category,
+          categoryId: e.categoryId,
+          date: e.expenseDate,
+          categoryName: e.category,
+          expense_date: e.expenseDate,
+        }));
+
+        setExpenses(normalized);
+        setPaginationData({
+          totalPages: data.totalPages,
+          totalElements: data.totalElements,
+          currentPage: data.pageable?.pageNumber + 1 || 1,
+          size: data.size,
+          first: data.first,
+          last: data.last,
+        });
+      } else {
+        console.error("❌ Pagination request rejected:", result.payload);
+        toast.error("Failed to load expenses");
+      }
+    } catch (error) {
+      console.error("❌ Error loading paginated expenses:", error);
+      toast.error("Failed to load expenses");
+    } finally {
+      setHistoryLoading(false); // MAKE SURE THIS IS CALLED
+    }
+  };
 
   // Handle edit expense from ExpenseHistory
   const handleEditExpense = (expense) => {
@@ -189,6 +260,18 @@ export default function UserDashboard() {
 
       // Refresh dashboard data
       await refreshDashboardData();
+
+      // If we're on history view, refresh the paginated data too
+      if (currentView === "history" && paginationData) {
+        await handlePageChange({
+          page: paginationData.currentPage,
+          size: paginationData.size || 10,
+          sort: "expenseDate,desc",
+          query: "",
+          category: "All",
+          period: "All Time",
+        });
+      }
     } catch (error) {
       console.error("❌ Error saving expense:", error);
       toast.error("Failed to save expense");
@@ -428,16 +511,12 @@ export default function UserDashboard() {
         // History tab
         <div className="mx-auto w-full max-w-7xl px-4 pt-4">
           <ExpenseHistory
-            expenses={expenses.map((e) => ({
-              id: e.id,
-              amount: e.amount,
-              description: e.description,
-              merchant: e.merchant,
-              category: e.category ?? e.categoryName,
-              date: e.date ?? e.expense_date,
-            }))}
+            expenses={expenses}
             categories={categories}
             onEditExpense={handleEditExpense}
+            onPageChange={handlePageChange}
+            paginationData={paginationData}
+            loading={historyLoading}
           />
         </div>
       )}
