@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback } from "react";
-import { Search, Filter, Edit } from "lucide-react";
+import { Search, Filter, Edit, Trash2 } from "lucide-react";
 
 const currency = (n) =>
     new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(n || 0);
@@ -52,12 +52,13 @@ function inRange(dateStr, period) {
     return true;
 }
 
-export default function ExpenseHistory({ expenses, categories = [], onEditExpense, onPageChange, paginationData, loading }) {
+export default function ExpenseHistory({ expenses, categories = [], onEditExpense, onPageChange, paginationData, loading, onExpenseDeleted }) {
     const [query, setQuery] = useState("");
     const [category, setCategory] = useState("All");
     const [period, setPeriod] = useState("All Time");
     const [sortBy, setSortBy] = useState("Date (Newest)");
     const [currentPage, setCurrentPage] = useState(1);
+    const [deletingId, setDeletingId] = useState(null);
     const itemsPerPage = 10;
 
     // Transform backend categories to include "All" option
@@ -142,6 +143,44 @@ export default function ExpenseHistory({ expenses, categories = [], onEditExpens
         console.log("📝 Editing expense:", expense);
         if (onEditExpense) {
             onEditExpense(expense);
+        }
+    };
+
+    const handleDeleteClick = async (expense) => {
+        if (!window.confirm(`Are you sure you want to delete "${expense.description}"?`)) {
+            return;
+        }
+
+        setDeletingId(expense.id);
+        
+        try {
+            const token = localStorage.getItem('token') || 'your-auth-token-here'; // Get from your auth context
+            const response = await fetch(`http://localhost:8080/api/create-expenses/${expense.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'accept': '*/*',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                console.log("✅ Expense deleted successfully");
+                
+                // Notify parent component about the deletion
+                if (onExpenseDeleted) {
+                    onExpenseDeleted(expense.id);
+                }
+                
+                // Optional: Show success message
+                alert('Expense deleted successfully!');
+            } else {
+                throw new Error(`Failed to delete expense: ${response.status}`);
+            }
+        } catch (error) {
+            console.error("❌ Error deleting expense:", error);
+            alert('Failed to delete expense. Please try again.');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -278,10 +317,12 @@ export default function ExpenseHistory({ expenses, categories = [], onEditExpens
                             {paginatedExpenses.map((e) => (
                                 <li 
                                     key={e.id} 
-                                    className="p-3 flex justify-between items-center hover:bg-gray-50 cursor-pointer group"
-                                    onClick={() => handleEditClick(e)}
+                                    className="p-3 flex justify-between items-center hover:bg-gray-50 group"
                                 >
-                                    <div className="flex-1">
+                                    <div 
+                                        className="flex-1 cursor-pointer"
+                                        onClick={() => handleEditClick(e)}
+                                    >
                                         <div className="font-medium">{e.description}</div>
                                         <div className="text-sm text-gray-600">{e.category}</div>
                                         <div className="text-xs text-gray-400">
@@ -290,7 +331,21 @@ export default function ExpenseHistory({ expenses, categories = [], onEditExpens
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <div className="font-semibold text-blue-600">{currency(e.amount)}</div>
-                                        <Edit className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <Edit 
+                                            className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" 
+                                            onClick={() => handleEditClick(e)}
+                                        />
+                                        <button
+                                            onClick={() => handleDeleteClick(e)}
+                                            disabled={deletingId === e.id}
+                                            className="text-red-500 hover:text-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        >
+                                            {deletingId === e.id ? (
+                                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-500"></div>
+                                            ) : (
+                                                <Trash2 className="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                            )}
+                                        </button>
                                     </div>
                                 </li>
                             ))}

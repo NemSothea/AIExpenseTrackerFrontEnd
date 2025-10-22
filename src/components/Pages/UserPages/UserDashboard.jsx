@@ -353,6 +353,26 @@ export default function UserDashboard() {
       : { name: "N/A", pct: 0 };
   }, [serverTop, expenses, totalSpent]);
 
+  // handle expense deleted
+  const handleExpenseDeleted = async (deletedExpenseId) => {
+  console.log("🗑️ Expense deleted, refreshing data...", deletedExpenseId);
+  
+  // Remove the expense from local state for immediate UI update
+  setExpenses(prev => prev.filter(expense => expense.id !== deletedExpenseId));
+  
+  // Refresh the dashboard data to get updated totals
+  await refreshDashboardData();
+  
+  // If we're on history view with pagination, refresh paginated data too
+  if (currentView === "history" && paginationData) {
+    await handlePageChange({
+      page: paginationData.currentPage - 1, // Go back one page if current page becomes empty
+      size: paginationData.size || 10,
+      sort: "expenseDate,desc",
+    });
+  }
+};
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Banner />
@@ -517,6 +537,7 @@ export default function UserDashboard() {
             onPageChange={handlePageChange}
             paginationData={paginationData}
             loading={historyLoading}
+            onExpenseDeleted={handleExpenseDeleted} 
           />
         </div>
       )}
