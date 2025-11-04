@@ -140,6 +140,12 @@ open AI-Expense-Tracker/AIExapenseTracker.xcodeproj
    - Press `Cmd + R` to build and run
 
 ## 📚 API Documentation
+###  ✌️ Process Flow
+![Process Flow](https://github.com/NemSothea/AIExpenseTrackerFrontEnd/blob/main/src/assets/Images/Process_Flow_Web_Application.png)
+
+### 👌 Web Application
+![Process Flow](https://github.com/NemSothea/AIExpenseTrackerFrontEnd/blob/main/src/assets/Images/FrontEndImage.png)
+
 
 ### Base URL
 ```
