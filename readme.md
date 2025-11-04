@@ -9,7 +9,7 @@
 
 **An intelligent expense management application powered by AI**
 
-[Features](#-features) • [Installation](#-installation) • [API Docs](#-api-documentation) • [Demo](#-demo) • [Team](#-team)
+[Features](#-features) • [Installation](#-installation) • [API Docs](#-api-documentation)• [Team](#-team)
 
 </div>
 
@@ -28,12 +28,12 @@ AI Expense Tracker is a comprehensive financial management solution that leverag
 ### 🤖 Core Capabilities
 | Feature | Description | Status |
 |---------|-------------|---------|
-| 📝 Manual Expense Entry | Traditional form-based expense logging | 🧑🏻‍💻 Progressing |
-| 📷 Receipt OCR Scanning | AI-powered receipt scanning with automatic data extraction | 🧑🏻‍💻 Progressing |
-| 🎤 Voice Input | Natural language expense creation via voice commands | 🧑🏻‍💻 Progressing |
-| 🏷️ AI Categorization | Machine learning-based automatic expense categorization | 🧑🏻‍💻 Progressing |
-| 📊 Data Visualization | Interactive charts and spending analytics |🧑🏻‍💻 Progressing |
-| 🔐 Secure Authentication | JWT + OAuth2 with role-based access control | 🧑🏻‍💻 Progressing |
+| 📝 Manual Expense Entry | Traditional form-based expense logging | 🧑🏻‍💻 Completed |
+| 📷 Receipt OCR Scanning | AI-powered receipt scanning with automatic data extraction | 🧑🏻‍💻 Completed |
+| 🎤 Voice Input | Natural language expense creation via voice commands | 🧑🏻‍💻 Completed |
+| 🏷️ AI Categorization | Machine learning-based automatic expense categorization | 🧑🏻‍💻 Completed |
+| 📊 Data Visualization | Interactive charts and spending analytics |🧑🏻‍💻 Completed |
+| 🔐 Secure Authentication | JWT + OAuth2 with role-based access control | 🧑🏻‍💻 Completed |
 
 ### 🔧 Technical Features
 - **Backend**: Spring Boot with RESTful APIs
